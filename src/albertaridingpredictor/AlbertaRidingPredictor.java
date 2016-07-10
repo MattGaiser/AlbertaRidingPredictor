@@ -11,12 +11,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -24,6 +28,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 /**
@@ -38,7 +45,49 @@ public class AlbertaRidingPredictor extends Application {
         tableSetup(table);
         ObservableList<Riding> data = getRidingData();
         table.setItems(data);
-
+        
+        Label ndpLabel = new Label("New Democrats");
+        ndpLabel.setTextFill(Color.ORANGE);
+        labelSetup(ndpLabel);
+        
+        Label ndpPercent = new Label();
+        labelSetup(ndpPercent);
+        
+        Label wildroseLabel = new Label("Wildrose");
+        wildroseLabel.setTextFill(Color.DARKGREEN);
+        labelSetup(wildroseLabel);
+        
+        Label wildrosePercent = new Label();
+        labelSetup(wildrosePercent);
+        
+        Label conservativeLabel = new Label("Conservatives");
+        conservativeLabel.setTextFill(Color.BLUE);
+        labelSetup(conservativeLabel);
+        
+        Label conPercent = new Label();
+        labelSetup(conPercent);
+        
+        Label liberalLabel = new Label("Liberals");
+        liberalLabel.setTextFill(Color.web("#C70D22"));
+        labelSetup(liberalLabel);
+        
+        Label libPercent = new Label();
+        labelSetup(libPercent);
+        
+        Label albertaLabel = new Label("Alberta Party");
+        albertaLabel.setTextFill(Color.CYAN);
+        labelSetup(albertaLabel);
+        
+        Label albertaPercent = new Label();
+        labelSetup(albertaPercent);
+        
+        Label greenLabel = new Label("Green Party");
+        greenLabel.setTextFill(Color.GREEN);
+        labelSetup(greenLabel);
+        
+        Label greenPercent = new Label();
+        labelSetup(greenPercent);
+        
         Slider newDemocrats = new Slider();
         Slider wildRose = new Slider();
         Slider progressiveConservatives = new Slider();
@@ -46,32 +95,27 @@ public class AlbertaRidingPredictor extends Application {
         Slider alberta = new Slider();
         Slider green = new Slider();
 
-        sliderSetup(newDemocrats);
-        sliderSetup(wildRose);
-        sliderSetup(progressiveConservatives);
-        sliderSetup(liberal);
-        sliderSetup(alberta);
-        sliderSetup(green);
+        sliderSetup(newDemocrats, ndpPercent);
+        sliderSetup(wildRose, wildrosePercent);
+        sliderSetup(progressiveConservatives, conPercent);
+        sliderSetup(liberal, libPercent);
+        sliderSetup(alberta, albertaPercent);
+        sliderSetup(green, greenPercent);
 
-        Button btn = new Button();
-        btn.setText("Say 'Hello World'");
-        btn.setOnAction(new EventHandler<ActionEvent>() {
 
-            @Override
-            public void handle(ActionEvent event) {
-                System.out.println("Hello World!");
-            }
-        });
-        VBox sliders1 = new VBox();
-        sliders1.getChildren().addAll(newDemocrats, wildRose, progressiveConservatives);
-        VBox sliders2 = new VBox();
-        sliders2.getChildren().addAll(liberal, alberta, green);
+        HBox nSlide = new HBox(newDemocrats,ndpPercent);
+        HBox wSlide = new HBox(wildRose, wildrosePercent);
+        HBox cSlide = new HBox(progressiveConservatives, conPercent);
+        HBox lSlide = new HBox(liberal, libPercent);
+        HBox aSlide = new HBox(alberta, albertaPercent);
+        HBox gSlide = new HBox(green, greenPercent);
+        
+        VBox sliders1 = new VBox(ndpLabel, nSlide,wildroseLabel, wSlide, conservativeLabel, cSlide);
+        VBox sliders2 = new VBox(liberalLabel, lSlide, albertaLabel, aSlide, greenLabel, gSlide);
 
-        HBox middle = new HBox();
-        middle.getChildren().addAll(sliders1, sliders2);
 
-        VBox root = new VBox();
-        root.getChildren().addAll(middle, table);
+        HBox sliderLayout = new HBox(sliders1, sliders2);
+        VBox root = new VBox(sliderLayout, table);
         Scene scene = new Scene(root);
 
         getRidingData();
@@ -87,13 +131,28 @@ public class AlbertaRidingPredictor extends Application {
         launch(args);
     }
 
-    public static void sliderSetup(Slider slider) {
-        slider.setMin(0);
+    public static void sliderSetup(Slider slider, Label label) {
         slider.setMin(0);
         slider.setMax(100);
         slider.setValue(40);
         slider.setShowTickLabels(true);
         slider.setShowTickMarks(true);
+        slider.setPrefWidth(250);
+        
+        slider.valueProperty().addListener(new ChangeListener()
+        {
+            @Override
+            public void changed (ObservableValue arg0, Object arg1, Object arg2)
+            {
+                label.setText(Double.toString(round(slider.getValue())) + "%");
+            }
+        });
+        
+        
+    }
+    public static void labelSetup(Label label)
+    {
+           label.setFont(Font.font("Verdana", FontWeight.NORMAL, 15));
     }
 
     public static void tableSetup(TableView table) {
@@ -146,6 +205,13 @@ public class AlbertaRidingPredictor extends Application {
         }
         
         return Integer.parseInt(number);
+    }
+    
+    public static double round(double num)
+    {
+        double var; 
+        var =  (double) Math.round(num*1000)/1000;
+        return var;
     }
 
     public static ObservableList getRidingData() {
